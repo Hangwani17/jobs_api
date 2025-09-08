@@ -5,14 +5,14 @@ import os
 import smtplib
 import re
 import time
-import os
-from datetime import datetime
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.application import MIMEApplication
+from datetime import datetime
+
 app = Flask(__name__)
 
-# Enable CORS
+# Enable CORS for all origins
 CORS(app)
 
 # Adzuna API credentials
@@ -20,7 +20,7 @@ ADZUNA_APP_ID = "23c1b28a"
 ADZUNA_API_KEY = "4b9b103c5696357dc79c7c98d7ba5d6d"
 COUNTRY_CODE = "za"
 
-# Email configuration (update these with your actual credentials)
+# Email configuration
 SMTP_SERVER = "smtp.gmail.com"
 SMTP_PORT = 587
 EMAIL_USERNAME = "jobly.recruitment001@gmail.com"

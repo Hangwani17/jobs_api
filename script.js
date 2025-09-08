@@ -17,6 +17,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const applicationForm = document.getElementById('application-form');
     const jobDetailsContent = document.getElementById('job-details-content');
 
+    // API Base URL - UPDATED
+    const API_BASE_URL = 'https://jobs-api-1-pqyy.onrender.com';
+
     // Load departments on page load
     loadDepartments();
 
@@ -54,9 +57,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 departmentSelect.remove(1);
             }
             
-            // Fetch departments from backend
-            fetch('/departments')
-                .then(response => response.json())
+            // Fetch departments from backend - UPDATED URL
+            fetch(`${API_BASE_URL}/departments`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
                 .then(departments => {
                     departments.forEach(dept => {
                         const option = document.createElement('option');
@@ -103,7 +111,8 @@ document.addEventListener('DOMContentLoaded', function() {
         if (keyword) params.append('keyword', keyword);
         if (departmentToSend) params.append('department', departmentToSend);
         
-        fetch(`/jobs?${params.toString()}`)
+        // UPDATED URL
+        fetch(`${API_BASE_URL}/jobs?${params.toString()}`)
             .then(response => {
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
@@ -299,7 +308,8 @@ document.addEventListener('DOMContentLoaded', function() {
         submitButton.disabled = true;
         submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
         
-        fetch('/apply', {
+        // UPDATED URL
+        fetch(`${API_BASE_URL}/apply`, {
             method: 'POST',
             body: formData
         })
