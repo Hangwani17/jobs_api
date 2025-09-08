@@ -5,11 +5,11 @@ import os
 import smtplib
 import re
 import time
+import os
+from datetime import datetime
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.application import MIMEApplication
-from datetime import datetime
-
 app = Flask(__name__)
 
 # Enable CORS
@@ -399,14 +399,14 @@ def send_confirmation_email(applicant_email, job_title, company_name, applicant_
     body = f"""
     Dear {applicant_name},
 
-    Thank you for applying for the position of {job_title} at {company_name}.
-    
-    We have successfully received your application and it has been forwarded to the hiring team.
-    
-    They will review your qualifications and contact you if you are selected for an interview.
-    
-    Please allow some time for the hiring team to review all applications.
-    
+        Thank you for applying for the position of {job_title} at {company_name}.
+        
+        We have successfully received your application and it has been forwarded to the hiring team.
+        
+        They will review your qualifications and contact you if you are selected for an interview.
+        
+        Please allow some time for the hiring team to review all applications.
+        
     Best regards,
     Recruitment Team
     South African Jobs Platform
@@ -509,4 +509,4 @@ def serve_file(filename):
     return send_from_directory('.', filename)
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=10000)
