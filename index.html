@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>South African Jobs</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <header class="header">
+        <h1>Find Your Dream Job in South Africa</h1>
+        <p>Browse thousands of opportunities across all industries</p>
+    </header>
+
+    <div class="search-container">
+        <div class="filters">
+            <div class="search-input">
+                <i class="fas fa-search"></i>
+                <input type="text" id="keyword" placeholder="Search jobs, companies, or keywords...">
+            </div>
+            <select id="department">
+                <option value="">All Industries</option>
+            </select>
+            <button id="search-button">
+                <i class="fas fa-search"></i> Search Jobs
+            </button>
+        </div>
+    </div>
+
+    <div id="content">
+        <div id="loading" class="loading">
+            <div class="loading-spinner"></div>
+            <p>Finding the best jobs for you...</p>
+        </div>
+        <div id="jobs"></div>
+    </div>
+
+    <!-- Job Details Modal -->
+    <div id="job-details-modal" class="modal">
+        <div class="modal-content">
+            <span class="close close-details">&times;</span>
+            <div id="job-details-content"></div>
+        </div>
+    </div>
+
+    <!-- Application Modal -->
+    <div id="application-modal" class="modal">
+        <div class="modal-content">
+            <span class="close close-application">&times;</span>
+            <h2>Apply for <span id="job-title"></span></h2>
+            <form id="application-form">
+                <input type="hidden" id="job-id" name="job_id">
+                <input type="hidden" id="job-title-field" name="job_title">
+                <input type="hidden" id="company-name-field" name="company_name">
+                
+                <div class="form-group">
+                    <label for="applicant-name">Full Name *</label>
+                    <input type="text" id="applicant-name" name="name" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="applicant-email">Email *</label>
+                    <input type="email" id="applicant-email" name="email" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="applicant-phone">Phone Number *</label>
+                    <input type="tel" id="applicant-phone" name="phone" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="applicant-resume">Upload Resume (PDF, DOC, DOCX) *</label>
+                    <input type="file" id="applicant-resume" name="resume" accept=".pdf,.doc,.docx" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="applicant-cover">Cover Letter</label>
+                    <textarea id="applicant-cover" name="cover_letter" placeholder="Tell us why you're a good fit for this position..."></textarea>
+                </div>
+                
+                <button type="submit" class="apply-button">Submit Application</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
