@@ -20,6 +20,9 @@ document.addEventListener('DOMContentLoaded', function() {
     // API Base URL - UPDATED
     const API_BASE_URL = 'https://jobs-api-1-pqyy.onrender.com';
 
+    // Store original form HTML for resetting
+    const originalFormHTML = applicationForm.innerHTML;
+
     // Load departments on page load
     loadDepartments();
 
@@ -223,11 +226,22 @@ document.addEventListener('DOMContentLoaded', function() {
         jobTitleField.value = job.title;
         companyNameField.value = job.company || '';
         
-        // Reset form
-        applicationForm.reset();
+        // Reset form completely
+        resetApplicationForm();
         
         // Show modal
         applicationModal.style.display = 'block';
+    }
+
+    function resetApplicationForm() {
+        // Restore the original form HTML
+        applicationForm.innerHTML = originalFormHTML;
+        
+        // Reattach the event listener
+        applicationForm.addEventListener('submit', handleApplication);
+        
+        // Reset any form fields that might have values
+        applicationForm.reset();
     }
 
     function showJobDetails(jobId) {
@@ -304,24 +318,43 @@ document.addEventListener('DOMContentLoaded', function() {
         const submitButton = applicationForm.querySelector('button[type="submit"]');
         const originalButtonText = submitButton.innerHTML;
         
+        // Validate file size (max 5MB)
+        const resumeFile = document.getElementById('applicant-resume').files[0];
+        if (resumeFile && resumeFile.size > 5 * 1024 * 1024) {
+            alert('Resume file size must be less than 5MB');
+            return;
+        }
+        
         // Show loading state
         submitButton.disabled = true;
         submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
         
-        // UPDATED URL
+        // UPDATED URL with error handling
         fetch(`${API_BASE_URL}/apply`, {
             method: 'POST',
             body: formData
         })
         .then(response => {
+            console.log('Response status:', response.status);
+            
             if (!response.ok) {
-                return response.json().then(err => {
-                    throw new Error(err.error || 'Application failed');
+                // Try to get error message from response
+                return response.text().then(text => {
+                    let errorMsg = 'Application failed';
+                    try {
+                        const errorData = JSON.parse(text);
+                        errorMsg = errorData.error || errorMsg;
+                    } catch (e) {
+                        errorMsg = text || errorMsg;
+                    }
+                    throw new Error(errorMsg);
                 });
             }
             return response.json();
         })
         .then(data => {
+            console.log('Application successful:', data);
+            
             // Show success message
             let successMessage = `
                 <div class="application-success">
@@ -346,17 +379,43 @@ document.addEventListener('DOMContentLoaded', function() {
                 applicationModal.style.display = 'none';
                 
                 // Reset form for next time
-                applicationForm.innerHTML = document.getElementById('application-form').innerHTML;
-                
-                // Reattach event listeners
-                applicationForm.addEventListener('submit', handleApplication);
+                resetApplicationForm();
             }, 5000);
         })
         .catch(error => {
             console.error('Application error:', error);
-            alert('Error submitting application: ' + error.message);
+            // More user-friendly error message
+            let errorMessage = 'Error submitting application. ';
+            
+            if (error.message.includes('Failed to fetch')) {
+                errorMessage += 'Network error. Please check your internet connection.';
+            } else if (error.message.includes('500')) {
+                errorMessage += 'Server error. Please try again later.';
+            } else {
+                errorMessage += error.message;
+            }
+            
+            alert(errorMessage);
             submitButton.disabled = false;
             submitButton.innerHTML = originalButtonText;
         });
     }
+
+    // Add debug function to check API connectivity
+    function checkAPIStatus() {
+        fetch(`${API_BASE_URL}/jobs?page=1`)
+            .then(response => {
+                console.log('API Status:', response.status, response.statusText);
+                return response.json();
+            })
+            .then(data => {
+                console.log('API Response sample:', data.length ? data[0] : 'No data');
+            })
+            .catch(error => {
+                console.error('API Connection Error:', error);
+            });
+    }
+    
+    // Check API status on load
+    setTimeout(checkAPIStatus, 2000);
 });
