@@ -391,13 +391,14 @@ def send_application_email(job_id, job_title, company_name, name, email, phone, 
 
 def send_confirmation_email(applicant_email, job_title, company_name, applicant_name):
     """Send confirmation email to the applicant"""
-    msg = MIMEMultipart()
-    msg['From'] = EMAIL_USERNAME
-    msg['To'] = applicant_email
-    msg['Subject'] = f"Application Confirmation: {job_title} at {company_name}"
-    
-    body = f"""
-    Dear {applicant_name},
+    try:
+        msg = MIMEMultipart()
+        msg['From'] = EMAIL_USERNAME
+        msg['To'] = applicant_email
+        msg['Subject'] = f"Application Confirmation: {job_title} at {company_name}"
+        
+        body = f"""
+        Dear {applicant_name},
 
         Thank you for applying for the position of {job_title} at {company_name}.
         
@@ -407,15 +408,14 @@ def send_confirmation_email(applicant_email, job_title, company_name, applicant_
         
         Please allow some time for the hiring team to review all applications.
         
-    Best regards,
-    Recruitment Team
-    South African Jobs Platform
-    """
-    
-    msg.attach(MIMEText(body, 'plain'))
-    
-    # Send confirmation email
-    try:
+        Best regards,
+        Recruitment Team
+        South African Jobs Platform
+        """
+        
+        msg.attach(MIMEText(body, 'plain'))
+        
+        # Send confirmation email
         server = smtplib.SMTP(SMTP_SERVER, SMTP_PORT)
         server.starttls()
         server.login(EMAIL_USERNAME, EMAIL_PASSWORD)
@@ -425,6 +425,9 @@ def send_confirmation_email(applicant_email, job_title, company_name, applicant_
         return True
     except Exception as e:
         print(f"Error sending confirmation email: {str(e)}")
+        # Log the specific error for debugging
+        import traceback
+        traceback.print_exc()
         return False
 
 @app.route('/')

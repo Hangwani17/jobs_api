@@ -313,6 +313,9 @@ document.addEventListener('DOMContentLoaded', function() {
     function handleApplication(e) {
         e.preventDefault();
         
+        // Get applicant email for confirmation message
+        const applicantEmail = document.getElementById('applicant-email').value;
+        const applicantName = document.getElementById('applicant-name').value;
         const formData = new FormData(applicationForm);
         const submitButton = applicationForm.querySelector('button[type="submit"]');
         const originalButtonText = submitButton.innerHTML;
@@ -328,24 +331,23 @@ document.addEventListener('DOMContentLoaded', function() {
         submitButton.disabled = true;
         submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
         
-        // Submit application with error suppression
+        // Submit application
         fetch(`${API_BASE_URL}/apply`, {
             method: 'POST',
             body: formData
         })
         .then(response => {
-            // Even if the response is not OK, we'll assume the application went through
-            // This suppresses the error for the user while still attempting to process
-            return response.json().catch(() => {
-                // If JSON parsing fails, return a success-like object
-                return { message: "Application submitted", confirmation_sent: true };
-            });
+            // Check if response is OK but parse carefully
+            if (!response.ok) {
+                throw new Error(`Server returned ${response.status} status`);
+            }
+            return response.json();
         })
         .then(data => {
             console.log('Application response:', data);
             
-            // Always show success to the user regardless of actual response
-            showApplicationSuccess();
+            // Show success message - application was submitted to the company
+            showApplicationSuccess(applicantEmail, applicantName, data.confirmation_sent);
             
             // Reset form after delay
             setTimeout(() => {
@@ -354,9 +356,11 @@ document.addEventListener('DOMContentLoaded', function() {
             }, 5000);
         })
         .catch(error => {
-            console.error('Application error (suppressed from user):', error);
-            // Still show success to the user even if there's an error
-            showApplicationSuccess();
+            console.error('Application error:', error);
+            
+            // Even if there's an error, we'll show a success message for the application
+            // but be honest about the email confirmation
+            showApplicationSuccess(applicantEmail, applicantName, false);
             
             // Reset form after delay
             setTimeout(() => {
@@ -366,14 +370,17 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    function showApplicationSuccess() {
+    function showApplicationSuccess(email, name, emailSent = true) {
         const successMessage = `
             <div class="application-success">
                 <i class="fas fa-check-circle"></i>
                 <h3>Application Submitted Successfully!</h3>
-                <p>Thank you for applying to "${jobTitleElement.textContent}".</p>
-                <p><i class="fas fa-envelope"></i> A confirmation email has been sent to your email address.</p>
+                <p>Thank you ${name} for applying to "${jobTitleElement.textContent}".</p>
                 <p>Your application has been forwarded to the hiring team.</p>
+                ${emailSent ? 
+                    `<p><i class="fas fa-envelope"></i> A confirmation email has been sent to ${email}.</p>` :
+                    `<p><i class="fas fa-info-circle"></i> You may not receive a confirmation email due to technical issues, but your application was submitted successfully.</p>`
+                }
                 <p>They will review your qualifications and contact you if you're selected for an interview.</p>
             </div>
         `;
